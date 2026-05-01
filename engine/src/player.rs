@@ -1,4 +1,6 @@
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum PlayerId {
     P1,
     P2,
