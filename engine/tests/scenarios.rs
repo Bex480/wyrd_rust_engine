@@ -1,4 +1,4 @@
-use engine::{CardDef, CardId, EntityId, PlayerId};
+use engine::{CardDef, CardId, EntityId, GameState, PlayerId};
 
 #[test]
 fn player_id_other_swap_players() {
@@ -38,4 +38,15 @@ fn card_def_compare_by_field_value() {
 
     assert_eq!(def, def_copy);
     assert_ne!(def, def_diff);
+}
+
+#[test]
+fn card_entity_id_check() {
+    let mut game_state = GameState::default();
+    let entity_id_1 = game_state.spawn_card(CardId(33));
+    let entity_id_2 = game_state.spawn_card(CardId(37));
+    let card_id = game_state.find_card(entity_id_1);
+
+    assert_ne!(entity_id_1, entity_id_2);
+    assert_eq!(card_id, Some(CardId(33)));
 }
