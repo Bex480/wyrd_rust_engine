@@ -1,4 +1,6 @@
-use engine::{CardDef, CardId, EntityId, GameState, PlayerId};
+use std::path::Path;
+
+use engine::{CardDef, CardId, Deck, EntityId, GameState, PlayerId, Registry};
 
 #[test]
 fn player_id_other_swap_players() {
@@ -49,4 +51,33 @@ fn card_entity_id_check() {
 
     assert_ne!(entity_id_1, entity_id_2);
     assert_eq!(card_id, Some(CardId(33)));
+}
+
+#[test]
+fn load_cards_from_ron_file() {
+    let path = Path::new("data/cards.ron");
+    let cards = engine::load_cards(path).expect("loaded cards");
+
+    assert!(!cards.is_empty(), "Should load at least one card");
+}
+
+#[test]
+fn fetch_card_from_default_registry() {
+    let registry = Registry::load_default().unwrap();
+    let card = registry.get_card(CardId(1)).unwrap();
+
+    assert_eq!(card.id, CardId(1));
+}
+
+#[test]
+fn create_and_populate_deck() {
+    let mut game_state = GameState::default();
+    let card_1 = game_state.spawn_card(CardId(1));
+    let card_2 = game_state.spawn_card(CardId(2));
+    let mut deck = Deck::new(vec![card_1, card_2]);
+
+    assert_eq!(deck.card_count(), 2);
+    let drawn = deck.draw(1);
+    assert_eq!(drawn.len(), 1);
+    assert_eq!(deck.card_count(), 1);
 }

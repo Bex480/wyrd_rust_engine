@@ -1,9 +1,10 @@
-use crate::{CardId, EntityId};
+use crate::{CardId, Deck, EntityId, PlayerId};
 use std::collections::HashMap;
 
 pub struct GameState {
     entity_number: u32,
     card_refs: HashMap<EntityId, CardId>,
+    decks: HashMap<PlayerId, Deck>,
 }
 
 impl GameState {
@@ -21,6 +22,10 @@ impl GameState {
     pub fn find_card(&self, entity_id: EntityId) -> Option<CardId> {
         self.card_refs.get(&entity_id).copied()
     }
+
+    pub fn assign_deck(&mut self, player: PlayerId, deck: Deck) {
+        self.decks.insert(player, deck);
+    }
 }
 
 impl Default for GameState {
@@ -28,6 +33,7 @@ impl Default for GameState {
         Self {
             entity_number: 0,
             card_refs: HashMap::new(),
+            decks: HashMap::new(),
         }
     }
 }
