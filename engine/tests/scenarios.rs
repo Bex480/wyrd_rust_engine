@@ -1,11 +1,11 @@
 use std::path::Path;
 
-use engine::{CardDef, CardId, Deck, EntityId, GameState, PlayerId, Registry};
+use engine::{CardDef, CardId, Deck, EntityId, GameState, Hand, Player, Registry};
 
 #[test]
 fn player_id_other_swap_players() {
-    assert_eq!(PlayerId::P1.other(), PlayerId::P2);
-    assert_eq!(PlayerId::P2.other(), PlayerId::P1);
+    assert_eq!(Player::P1.other(), Player::P2);
+    assert_eq!(Player::P2.other(), Player::P1);
 }
 
 #[test]
@@ -45,12 +45,17 @@ fn card_def_compare_by_field_value() {
 #[test]
 fn card_entity_id_check() {
     let mut game_state = GameState::default();
-    let entity_id_1 = game_state.spawn_card(CardId(33));
-    let entity_id_2 = game_state.spawn_card(CardId(37));
+    let registry = Registry::load_default().expect("load cards");
+    let entity_id_1 = game_state
+        .spawn_card(&registry, CardId(1))
+        .expect("spawn card 1");
+    let entity_id_2 = game_state
+        .spawn_card(&registry, CardId(2))
+        .expect("spawn card 2");
     let card_id = game_state.find_card(entity_id_1);
 
     assert_ne!(entity_id_1, entity_id_2);
-    assert_eq!(card_id, Some(CardId(33)));
+    assert_eq!(card_id, Some(CardId(1)));
 }
 
 #[test]
@@ -63,8 +68,8 @@ fn load_cards_from_ron_file() {
 
 #[test]
 fn fetch_card_from_default_registry() {
-    let registry = Registry::load_default().unwrap();
-    let card = registry.get_card(CardId(1)).unwrap();
+    let registry = Registry::load_default().expect("load cards");
+    let card = registry.get_card(CardId(1)).expect("get card with Id 1");
 
     assert_eq!(card.id, CardId(1));
 }
@@ -72,12 +77,43 @@ fn fetch_card_from_default_registry() {
 #[test]
 fn create_and_populate_deck() {
     let mut game_state = GameState::default();
-    let card_1 = game_state.spawn_card(CardId(1));
-    let card_2 = game_state.spawn_card(CardId(2));
+    let registry = Registry::load_default().expect("load cards");
+    let card_1 = game_state
+        .spawn_card(&registry, CardId(1))
+        .expect("spawn card 1");
+    let card_2 = game_state
+        .spawn_card(&registry, CardId(2))
+        .expect("spawn card 2");
     let mut deck = Deck::new(vec![card_1, card_2]);
 
     assert_eq!(deck.card_count(), 2);
     let drawn = deck.draw(1);
     assert_eq!(drawn.len(), 1);
     assert_eq!(deck.card_count(), 1);
+}
+
+#[test]
+fn draw_card_from_deck() {
+    let registry = Registry::load_default().expect("load cards");
+    let mut game_state = GameState::default();
+    let card_1 = game_state
+        .spawn_card(&registry, CardId(1))
+        .expect("spawn card 1");
+    let card_2 = game_state
+        .spawn_card(&registry, CardId(2))
+        .expect("spawn card 2");
+    let deck = Deck::new(vec![card_1, card_2]);
+
+    game_state.assign_deck(Player::P1, deck);
+    game_state.assign_hand(Player::P1, Hand::new());
+
+    game_state
+        .draw_to_hand(Player::P1, 1)
+        .expect("drawn one 1 card");
+
+    let deck_after = game_state.deck_mut(Player::P1).expect("deck after draw");
+    assert_eq!(deck_after.card_count(), 1);
+
+    let hand_after = game_state.hand_mut(Player::P1).expect("hand after draw");
+    assert_eq!(hand_after.card_count(), 1);
 }

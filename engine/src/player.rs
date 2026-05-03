@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
-pub enum PlayerId {
+pub enum Player {
     P1,
     P2,
 }
 
-impl PlayerId {
+impl Player {
     pub fn other(self) -> Self {
         match self {
-            PlayerId::P1 => PlayerId::P2,
-            PlayerId::P2 => PlayerId::P1,
+            Player::P1 => Player::P2,
+            Player::P2 => Player::P1,
         }
     }
 }

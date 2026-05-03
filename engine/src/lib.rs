@@ -3,6 +3,7 @@ pub mod data;
 pub mod deck;
 pub mod entity;
 pub mod game_state;
+pub mod hand;
 pub mod player;
 pub mod registry;
 
@@ -11,5 +12,6 @@ pub use data::{load_cards, LoadError};
 pub use deck::Deck;
 pub use entity::EntityId;
 pub use game_state::GameState;
-pub use player::PlayerId;
+pub use hand::Hand;
+pub use player::Player;
 pub use registry::Registry;
