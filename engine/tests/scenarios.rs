@@ -158,7 +158,7 @@ fn field_creation_and_unit_spawning() {
 
     field.add(card_1, Lane::Back, SpawnSide::Right);
 
-    assert_eq!(field.unit_count_backline(), 1);
+    assert_eq!(field.unit_count_in_lane(Lane::Back), 1);
 }
 
 #[test]

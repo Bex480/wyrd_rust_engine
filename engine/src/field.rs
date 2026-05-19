@@ -40,12 +40,11 @@ impl Field {
         }
     }
 
-    pub fn unit_count_frontline(&self) -> usize {
-        self.frontline.len()
-    }
-
-    pub fn unit_count_backline(&self) -> usize {
-        self.backline.len()
+    pub fn unit_count_in_lane(&self, lane: Lane) -> usize {
+        match lane {
+            Lane::Front => self.frontline.len(),
+            Lane::Back => self.backline.len(),
+        }
     }
 
     pub fn unit_count_total(&self) -> usize {
