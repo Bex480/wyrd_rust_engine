@@ -2,11 +2,27 @@
     (
         id: (1),
         name: "Tundrakii Matron",
-        health: 4,
+        faction: Myridian,
+        card_type: Unit(
+            health: 4,
+            armour: 0,
+            essence_yield: 1,
+            tier: Mid,
+            unit_type: Ranged,
+            abilities: [],
+        ),
     ),
     (
         id: (2),
         name: "Tundrakii Huntress",
-        health: 3,
+        faction: Myridian,
+        card_type: Unit(
+            health: 3,
+            armour: 0,
+            essence_yield: 1,
+            tier: Low,
+            unit_type: Ranged,
+            abilities: [],
+        ),
     ),
 ]

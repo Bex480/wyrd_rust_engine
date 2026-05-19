@@ -7,7 +7,7 @@ pub mod hand;
 pub mod player;
 pub mod registry;
 
-pub use card::{CardDef, CardId};
+pub use card::{CardDef, CardId, CardType, Faction, Tier, UnitType};
 pub use data::{load_cards, LoadError};
 pub use deck::Deck;
 pub use entity::EntityId;

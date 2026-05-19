@@ -1,6 +1,9 @@
 use std::path::Path;
 
-use engine::{CardDef, CardId, Deck, EntityId, GameState, Hand, Player, Registry};
+use engine::{
+    CardDef, CardId, CardType, Deck, EntityId, Faction, GameState, Hand, Player, Registry, Tier,
+    UnitType,
+};
 
 #[test]
 fn player_id_other_swap_players() {
@@ -25,17 +28,41 @@ fn card_def_compare_by_field_value() {
     let def = CardDef {
         id: CardId(1),
         name: "Tundrakii Matron".to_string(),
-        health: 4,
+        faction: Faction::Myridian,
+        card_type: CardType::Unit {
+            health: 4,
+            armour: 0,
+            essence_yield: 1,
+            tier: Tier::Mid,
+            unit_type: UnitType::Ranged,
+            abilities: vec![],
+        },
     };
     let def_copy = CardDef {
         id: CardId(1),
         name: "Tundrakii Matron".to_string(),
-        health: 4,
+        faction: Faction::Myridian,
+        card_type: CardType::Unit {
+            health: 4,
+            armour: 0,
+            essence_yield: 1,
+            tier: Tier::Mid,
+            unit_type: UnitType::Ranged,
+            abilities: vec![],
+        },
     };
     let def_diff = CardDef {
         id: CardId(2),
         name: "Tundrakii Huntress".to_string(),
-        health: 3,
+        faction: Faction::Myridian,
+        card_type: CardType::Unit {
+            health: 3,
+            armour: 0,
+            essence_yield: 1,
+            tier: Tier::Low,
+            unit_type: UnitType::Ranged,
+            abilities: vec![],
+        },
     };
 
     assert_eq!(def, def_copy);
