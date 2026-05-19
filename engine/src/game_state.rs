@@ -1,4 +1,4 @@
-use crate::{CardId, Deck, EntityId, Hand, Player, Registry};
+use crate::{CardId, Deck, EntityId, Field, Hand, Player, Registry};
 use std::collections::HashMap;
 
 pub struct GameState {
@@ -6,6 +6,7 @@ pub struct GameState {
     card_refs: HashMap<EntityId, CardId>,
     decks: HashMap<Player, Deck>,
     hands: HashMap<Player, Hand>,
+    fields: HashMap<Player, Field>,
 }
 
 impl GameState {
@@ -33,12 +34,20 @@ impl GameState {
         self.hands.insert(player, hand);
     }
 
+    pub fn assign_field(&mut self, player: Player, field: Field) {
+        self.fields.insert(player, field);
+    }
+
     pub fn deck_mut(&mut self, player: Player) -> Option<&mut Deck> {
         self.decks.get_mut(&player)
     }
 
     pub fn hand_mut(&mut self, player: Player) -> Option<&mut Hand> {
         self.hands.get_mut(&player)
+    }
+
+    pub fn field_mut(&mut self, player: Player) -> Option<&mut Field> {
+        self.fields.get_mut(&player)
     }
 
     pub fn draw_to_hand(&mut self, player: Player, number: usize) -> Option<Vec<EntityId>> {
@@ -55,6 +64,7 @@ impl Default for GameState {
             card_refs: HashMap::new(),
             decks: HashMap::new(),
             hands: HashMap::new(),
+            fields: HashMap::new(),
         }
     }
 }

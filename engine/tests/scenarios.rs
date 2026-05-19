@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use engine::{
-    CardDef, CardId, CardType, Deck, EntityId, Faction, GameState, Hand, Player, Registry, Tier,
-    UnitType,
+    CardDef, CardId, CardType, Deck, EntityId, Faction, Field, GameState, Hand, Lane, Player,
+    Registry, SpawnSide, Tier, UnitType,
 };
 
 #[test]
@@ -143,4 +143,20 @@ fn draw_card_from_deck() {
 
     let hand_after = game_state.hand_mut(Player::P1).expect("hand after draw");
     assert_eq!(hand_after.card_count(), 1);
+}
+
+#[test]
+fn field_creation_and_unit_spawning() {
+    let registry = Registry::load_default().expect("Load cards!");
+    let mut game_state = GameState::default();
+    let card_1 = game_state
+        .spawn_card(&registry, CardId(1))
+        .expect("spawn card 1");
+
+    game_state.assign_field(Player::P1, Field::new());
+    let field = game_state.field_mut(Player::P1).expect("field creation!");
+
+    field.add(card_1, Lane::Back, SpawnSide::Right);
+
+    assert_eq!(field.unit_count_backline(), 1);
 }
