@@ -1,4 +1,6 @@
-use crate::{CardId, Deck, EntityId, Field, Hand, Player, Registry};
+use crate::{
+    CardId, CardType, Deck, EntityId, Field, Hand, Lane, Player, Registry, SpawnSide, UnitType,
+};
 use std::collections::HashMap;
 
 pub struct GameState {
@@ -54,6 +56,44 @@ impl GameState {
         let drawn_cards = self.deck_mut(player)?.draw(number);
         self.hand_mut(player)?.add_many(drawn_cards.iter().copied());
         Some(drawn_cards)
+    }
+
+    pub fn play_card(
+        &mut self,
+        registry: &Registry,
+        player: Player,
+        entity_id: EntityId,
+    ) -> Option<()> {
+        let card_id = self.find_card(entity_id)?;
+        let card = registry.get_card(card_id)?;
+
+        match card.card_type {
+            CardType::Unit { unit_type, .. } => self.play_unit(player, entity_id, unit_type),
+            CardType::Action { .. } => self.play_action(player, entity_id),
+        }
+    }
+
+    fn play_unit(
+        &mut self,
+        player: Player,
+        entity_id: EntityId,
+        unit_type: UnitType,
+    ) -> Option<()> {
+        self.hand_mut(player)?.remove(entity_id)?;
+
+        let lane = match unit_type {
+            UnitType::Melee => Lane::Front,
+            UnitType::Ranged => Lane::Back,
+            UnitType::Legend => Lane::Front,
+        };
+        self.field_mut(player)?
+            .add(entity_id, lane, SpawnSide::Right);
+        Some(())
+    }
+
+    fn play_action(&mut self, player: Player, entity_id: EntityId) -> Option<()> {
+        self.hand_mut(player)?.remove(entity_id)?;
+        Some(())
     }
 }
 

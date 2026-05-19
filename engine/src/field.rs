@@ -8,11 +8,13 @@ pub struct Field {
     pub backline: VecDeque<EntityId>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SpawnSide {
     Left,
     Right,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Lane {
     Front,
     Back,

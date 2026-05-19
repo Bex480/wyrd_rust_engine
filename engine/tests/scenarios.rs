@@ -160,3 +160,29 @@ fn field_creation_and_unit_spawning() {
 
     assert_eq!(field.unit_count_backline(), 1);
 }
+
+#[test]
+fn play_card_from_hand() {
+    let registry = Registry::load_default().expect("load cards");
+    let mut game_state = GameState::default();
+    let card_1 = game_state.spawn_card(&registry, CardId(1)).expect("spawn");
+
+    game_state.assign_deck(Player::P1, Deck::new(vec![card_1]));
+    game_state.assign_hand(Player::P1, Hand::new());
+    game_state.assign_field(Player::P1, Field::new());
+
+    assert_eq!(game_state.deck_mut(Player::P1).unwrap().card_count(), 1);
+
+    game_state.draw_to_hand(Player::P1, 1).expect("draw");
+    assert_eq!(game_state.deck_mut(Player::P1).unwrap().card_count(), 0);
+    assert_eq!(game_state.hand_mut(Player::P1).unwrap().card_count(), 1);
+
+    game_state
+        .play_card(&registry, Player::P1, card_1)
+        .expect("play");
+    assert_eq!(game_state.hand_mut(Player::P1).unwrap().card_count(), 0);
+    assert_eq!(
+        game_state.field_mut(Player::P1).unwrap().unit_count_total(),
+        1
+    );
+}
