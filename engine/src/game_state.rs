@@ -1,6 +1,6 @@
 use crate::{
     CardId, CardType, CardVec, Deck, DiscardPile, EntityId, Field, Hand, Lane, Player, Registry,
-    SpawnSide, UnitType,
+    SpawnSide, UnitState, UnitType,
 };
 use std::collections::HashMap;
 
@@ -12,6 +12,7 @@ pub struct GameState {
     hands: HashMap<Player, Hand>,
     fields: HashMap<Player, Field>,
     discard_piles: HashMap<Player, DiscardPile>,
+    units: HashMap<EntityId, UnitState>,
 }
 
 impl GameState {
@@ -25,6 +26,15 @@ impl GameState {
         let entity_id = self.create_entity();
         self.card_refs.insert(entity_id, def_id);
         Some(entity_id)
+    }
+
+    pub fn spawn_unit(&mut self, registry: &Registry, card_entity: EntityId) -> Option<EntityId> {
+        let card_id = self.find_card(card_entity)?;
+        let unit_def = registry.get_card(card_id)?.as_unit()?;
+        let unit_entity = self.create_entity();
+        let unit_state = UnitState::new(unit_def);
+        self.units.insert(unit_entity, unit_state);
+        Some(unit_entity)
     }
 
     pub fn find_card(&self, entity_id: EntityId) -> Option<CardId> {
@@ -73,34 +83,38 @@ impl GameState {
         &mut self,
         registry: &Registry,
         player: Player,
-        entity_id: EntityId,
+        card_entity: EntityId,
     ) -> Option<EntityId> {
-        let card_id = self.find_card(entity_id)?;
+        let card_id = self.find_card(card_entity)?;
         let card = registry.get_card(card_id)?;
 
-        match card.card_type {
-            CardType::Unit { unit_type, .. } => self.play_unit(player, entity_id, unit_type),
-            CardType::Action { .. } => self.play_action(player, entity_id),
+        self.hand_mut(player)?.remove(card_entity)?;
+
+        match &card.card_type {
+            CardType::Unit(unit_def) => {
+                let unit_entity = self.spawn_unit(registry, card_entity)?;
+                self.play_unit(player, unit_entity, unit_def.unit_type)
+            }
+            CardType::Action { .. } => self.play_action(player, card_entity),
         }
     }
 
     fn play_unit(
         &mut self,
         player: Player,
-        entity_id: EntityId,
+        unit_entity: EntityId,
         unit_type: UnitType,
     ) -> Option<EntityId> {
-        self.hand_mut(player)?.remove(entity_id)?;
-
         let lane = match unit_type {
             UnitType::Melee => Lane::Front,
             UnitType::Ranged => Lane::Back,
             UnitType::Legend => Lane::Front,
         };
-        self.field_mut(player)?
-            .add(entity_id, lane, SpawnSide::Right);
 
-        Some(entity_id)
+        self.field_mut(player)?
+            .add(unit_entity, lane, SpawnSide::Right);
+
+        Some(unit_entity)
     }
 
     fn play_action(&mut self, player: Player, entity_id: EntityId) -> Option<EntityId> {

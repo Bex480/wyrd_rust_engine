@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::UnitDef;
+
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub struct CardId(pub u32);
 
@@ -8,19 +10,13 @@ pub struct CardDef {
     pub id: CardId,
     pub name: String,
     pub faction: Faction,
+    pub tier: Tier,
     pub card_type: CardType,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CardType {
-    Unit {
-        health: i32,
-        armour: i32,
-        essence_yield: i32,
-        tier: Tier,
-        unit_type: UnitType,
-        abilities: Vec<i32>,
-    },
+    Unit(UnitDef),
     Action {
         cost: i32,
         tier: Tier,
@@ -44,9 +40,11 @@ pub enum Tier {
     High,
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
-pub enum UnitType {
-    Legend,
-    Melee,
-    Ranged,
+impl CardDef {
+    pub fn as_unit(&self) -> Option<&UnitDef> {
+        match &self.card_type {
+            CardType::Unit(unit_def) => Some(unit_def),
+            _ => None,
+        }
+    }
 }

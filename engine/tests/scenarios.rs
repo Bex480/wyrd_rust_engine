@@ -26,42 +26,41 @@ fn card_def_compare_by_field_value() {
         id: CardId(1),
         name: "Tundrakii Matron".to_string(),
         faction: Faction::Myridian,
-        card_type: CardType::Unit {
+        tier: Tier::Mid,
+        card_type: CardType::Unit(UnitDef {
             health: 4,
             armour: 0,
             essence_yield: 1,
-            tier: Tier::Mid,
             unit_type: UnitType::Ranged,
             abilities: vec![],
-        },
+        }),
     };
     let def_copy = CardDef {
         id: CardId(1),
         name: "Tundrakii Matron".to_string(),
         faction: Faction::Myridian,
-        card_type: CardType::Unit {
+        tier: Tier::Mid,
+        card_type: CardType::Unit(UnitDef {
             health: 4,
             armour: 0,
             essence_yield: 1,
-            tier: Tier::Mid,
             unit_type: UnitType::Ranged,
             abilities: vec![],
-        },
+        }),
     };
     let def_diff = CardDef {
         id: CardId(2),
         name: "Tundrakii Huntress".to_string(),
         faction: Faction::Myridian,
-        card_type: CardType::Unit {
+        tier: Tier::Low,
+        card_type: CardType::Unit(UnitDef {
             health: 3,
             armour: 0,
             essence_yield: 1,
-            tier: Tier::Low,
             unit_type: UnitType::Ranged,
             abilities: vec![],
-        },
+        }),
     };
-
     assert_eq!(def, def_copy);
     assert_ne!(def, def_diff);
 }

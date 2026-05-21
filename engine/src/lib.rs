@@ -9,8 +9,9 @@ pub mod game_state;
 pub mod hand;
 pub mod player;
 pub mod registry;
+pub mod unit;
 
-pub use card::{CardDef, CardId, CardType, Faction, Tier, UnitType};
+pub use card::{CardDef, CardId, CardType, Faction, Tier};
 pub use card_vec::CardVec;
 pub use data::{load_cards, LoadError};
 pub use deck::Deck;
@@ -21,3 +22,4 @@ pub use game_state::GameState;
 pub use hand::Hand;
 pub use player::Player;
 pub use registry::Registry;
+pub use unit::{Status, UnitDef, UnitState, UnitType};
