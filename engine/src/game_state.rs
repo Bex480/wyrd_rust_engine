@@ -28,13 +28,12 @@ impl GameState {
         Some(entity_id)
     }
 
-    pub fn spawn_unit(&mut self, registry: &Registry, card_entity: EntityId) -> Option<EntityId> {
-        let card_id = self.find_card(card_entity)?;
+    pub fn spawn_unit(&mut self, registry: &Registry, entity_id: EntityId) -> Option<EntityId> {
+        let card_id = self.find_card(entity_id)?;
         let unit_def = registry.get_card(card_id)?.as_unit()?;
-        let unit_entity = self.create_entity();
         let unit_state = UnitState::new(unit_def);
-        self.units.insert(unit_entity, unit_state);
-        Some(unit_entity)
+        self.units.insert(entity_id, unit_state);
+        Some(entity_id)
     }
 
     pub fn find_card(&self, entity_id: EntityId) -> Option<CardId> {
@@ -83,26 +82,26 @@ impl GameState {
         &mut self,
         registry: &Registry,
         player: Player,
-        card_entity: EntityId,
+        entity_id: EntityId,
     ) -> Option<EntityId> {
-        let card_id = self.find_card(card_entity)?;
+        let card_id = self.find_card(entity_id)?;
         let card = registry.get_card(card_id)?;
 
-        self.hand_mut(player)?.remove(card_entity)?;
+        self.hand_mut(player)?.remove(entity_id)?;
 
         match &card.card_type {
             CardType::Unit(unit_def) => {
-                let unit_entity = self.spawn_unit(registry, card_entity)?;
-                self.play_unit(player, unit_entity, unit_def.unit_type)
+                self.spawn_unit(registry, entity_id)?;
+                self.play_unit(player, entity_id, unit_def.unit_type)
             }
-            CardType::Action { .. } => self.play_action(player, card_entity),
+            CardType::Action { .. } => self.play_action(player, entity_id),
         }
     }
 
     fn play_unit(
         &mut self,
         player: Player,
-        unit_entity: EntityId,
+        entity_id: EntityId,
         unit_type: UnitType,
     ) -> Option<EntityId> {
         let lane = match unit_type {
@@ -112,9 +111,9 @@ impl GameState {
         };
 
         self.field_mut(player)?
-            .add(unit_entity, lane, SpawnSide::Right);
+            .add(entity_id, lane, SpawnSide::Right);
 
-        Some(unit_entity)
+        Some(entity_id)
     }
 
     fn play_action(&mut self, player: Player, entity_id: EntityId) -> Option<EntityId> {
