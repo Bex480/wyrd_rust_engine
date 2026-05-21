@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use engine::{
-    CardDef, CardId, CardType, Deck, EntityId, Faction, Field, GameState, Hand, Lane, Player,
-    Registry, SpawnSide, Tier, UnitType,
-};
+use engine::*;
 
 #[test]
 fn player_id_other_swap_players() {
@@ -162,7 +159,7 @@ fn field_creation_and_unit_spawning() {
 }
 
 #[test]
-fn play_card_from_hand() {
+fn play_card_from_hand_destroy_deplyed_unit() {
     let registry = Registry::load_default().expect("load cards");
     let mut game_state = GameState::default();
     let card_1 = game_state.spawn_card(&registry, CardId(1)).expect("spawn");
@@ -170,6 +167,7 @@ fn play_card_from_hand() {
     game_state.assign_deck(Player::P1, Deck::new(vec![card_1]));
     game_state.assign_hand(Player::P1, Hand::new());
     game_state.assign_field(Player::P1, Field::new());
+    game_state.assign_discard_pile(Player::P1, DiscardPile::new());
 
     assert_eq!(game_state.deck_mut(Player::P1).unwrap().card_count(), 1);
 
@@ -177,12 +175,25 @@ fn play_card_from_hand() {
     assert_eq!(game_state.deck_mut(Player::P1).unwrap().card_count(), 0);
     assert_eq!(game_state.hand_mut(Player::P1).unwrap().card_count(), 1);
 
-    game_state
+    let unit_1 = game_state
         .play_card(&registry, Player::P1, card_1)
         .expect("play");
     assert_eq!(game_state.hand_mut(Player::P1).unwrap().card_count(), 0);
     assert_eq!(
         game_state.field_mut(Player::P1).unwrap().unit_count_total(),
+        1
+    );
+
+    game_state.destroy_unit(Player::P1, unit_1);
+    assert_eq!(
+        game_state.field_mut(Player::P1).unwrap().unit_count_total(),
+        0
+    );
+    assert_eq!(
+        game_state
+            .discard_pile_mut(Player::P1)
+            .unwrap()
+            .card_count(),
         1
     );
 }

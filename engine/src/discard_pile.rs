@@ -1,26 +1,23 @@
 use crate::{CardVec, EntityId};
 
-pub struct Hand {
+#[derive(Clone, Eq, PartialEq, Hash, Debug)]
+pub struct DiscardPile {
     cards: Vec<EntityId>,
 }
 
-impl Hand {
+impl DiscardPile {
     pub fn new() -> Self {
         Self { cards: Vec::new() }
     }
-
-    pub fn with_cards(cards: Vec<EntityId>) -> Self {
-        Self { cards }
-    }
 }
 
-impl Default for Hand {
+impl Default for DiscardPile {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl CardVec for Hand {
+impl CardVec for DiscardPile {
     fn cards(&self) -> &Vec<EntityId> {
         &self.cards
     }

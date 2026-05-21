@@ -40,6 +40,16 @@ impl Field {
         }
     }
 
+    fn remove_from(lane: &mut VecDeque<EntityId>, entity_id: EntityId) -> Option<EntityId> {
+        let index = lane.iter().position(|id| *id == entity_id)?;
+        lane.remove(index)
+    }
+
+    pub fn remove(&mut self, entity_id: EntityId) -> Option<EntityId> {
+        Self::remove_from(&mut self.frontline, entity_id)
+            .or_else(|| Self::remove_from(&mut self.backline, entity_id))
+    }
+
     pub fn unit_count_in_lane(&self, lane: Lane) -> usize {
         match lane {
             Lane::Front => self.frontline.len(),

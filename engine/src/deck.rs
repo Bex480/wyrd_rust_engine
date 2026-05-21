@@ -1,4 +1,4 @@
-use crate::EntityId;
+use crate::{CardVec, EntityId};
 
 pub struct Deck {
     cards: Vec<EntityId>,
@@ -13,8 +13,14 @@ impl Deck {
         let n = number.min(self.card_count());
         self.cards.split_off(self.card_count() - n)
     }
+}
 
-    pub fn card_count(&self) -> usize {
-        self.cards.len()
+impl CardVec for Deck {
+    fn cards(&self) -> &Vec<EntityId> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<EntityId> {
+        &mut self.cards
     }
 }

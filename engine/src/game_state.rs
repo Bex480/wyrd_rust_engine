@@ -1,14 +1,17 @@
 use crate::{
-    CardId, CardType, Deck, EntityId, Field, Hand, Lane, Player, Registry, SpawnSide, UnitType,
+    CardId, CardType, CardVec, Deck, DiscardPile, EntityId, Field, Hand, Lane, Player, Registry,
+    SpawnSide, UnitType,
 };
 use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct GameState {
     entity_number: u32,
     card_refs: HashMap<EntityId, CardId>,
     decks: HashMap<Player, Deck>,
     hands: HashMap<Player, Hand>,
     fields: HashMap<Player, Field>,
+    discard_piles: HashMap<Player, DiscardPile>,
 }
 
 impl GameState {
@@ -40,6 +43,10 @@ impl GameState {
         self.fields.insert(player, field);
     }
 
+    pub fn assign_discard_pile(&mut self, player: Player, discard_pile: DiscardPile) {
+        self.discard_piles.insert(player, discard_pile);
+    }
+
     pub fn deck_mut(&mut self, player: Player) -> Option<&mut Deck> {
         self.decks.get_mut(&player)
     }
@@ -50,6 +57,10 @@ impl GameState {
 
     pub fn field_mut(&mut self, player: Player) -> Option<&mut Field> {
         self.fields.get_mut(&player)
+    }
+
+    pub fn discard_pile_mut(&mut self, player: Player) -> Option<&mut DiscardPile> {
+        self.discard_piles.get_mut(&player)
     }
 
     pub fn draw_to_hand(&mut self, player: Player, number: usize) -> Option<Vec<EntityId>> {
@@ -63,7 +74,7 @@ impl GameState {
         registry: &Registry,
         player: Player,
         entity_id: EntityId,
-    ) -> Option<()> {
+    ) -> Option<EntityId> {
         let card_id = self.find_card(entity_id)?;
         let card = registry.get_card(card_id)?;
 
@@ -78,7 +89,7 @@ impl GameState {
         player: Player,
         entity_id: EntityId,
         unit_type: UnitType,
-    ) -> Option<()> {
+    ) -> Option<EntityId> {
         self.hand_mut(player)?.remove(entity_id)?;
 
         let lane = match unit_type {
@@ -88,23 +99,19 @@ impl GameState {
         };
         self.field_mut(player)?
             .add(entity_id, lane, SpawnSide::Right);
-        Some(())
+
+        Some(entity_id)
     }
 
-    fn play_action(&mut self, player: Player, entity_id: EntityId) -> Option<()> {
+    fn play_action(&mut self, player: Player, entity_id: EntityId) -> Option<EntityId> {
         self.hand_mut(player)?.remove(entity_id)?;
-        Some(())
+        Some(entity_id)
     }
-}
 
-impl Default for GameState {
-    fn default() -> Self {
-        Self {
-            entity_number: 0,
-            card_refs: HashMap::new(),
-            decks: HashMap::new(),
-            hands: HashMap::new(),
-            fields: HashMap::new(),
-        }
+    pub fn destroy_unit(&mut self, player: Player, entity_id: EntityId) -> Option<EntityId> {
+        let destroyed_unit = self.field_mut(player)?.remove(entity_id)?;
+        self.discard_pile_mut(player)?.add(entity_id);
+
+        Some(destroyed_unit)
     }
 }

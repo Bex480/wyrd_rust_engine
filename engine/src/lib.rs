@@ -1,6 +1,8 @@
 pub mod card;
+pub mod card_vec;
 pub mod data;
 pub mod deck;
+pub mod discard_pile;
 pub mod entity;
 pub mod field;
 pub mod game_state;
@@ -9,8 +11,10 @@ pub mod player;
 pub mod registry;
 
 pub use card::{CardDef, CardId, CardType, Faction, Tier, UnitType};
+pub use card_vec::CardVec;
 pub use data::{load_cards, LoadError};
 pub use deck::Deck;
+pub use discard_pile::DiscardPile;
 pub use entity::EntityId;
 pub use field::{Field, Lane, SpawnSide};
 pub use game_state::GameState;
